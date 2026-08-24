@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraLab - Interactive Aura & Mindset Finder</title>
+    <!-- Canvas Confetti for celebratory result animations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d0b18;
+            --card-bg: rgba(255, 255, 255, 0.07);
+            --primary-glow: #8a2387;
+            --accent-color: #e94057;
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .ambient-orb {
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            filter: blur(80px);
+            z-index: 0;
+            animation: pulse 8s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8) translate(-10%, -10%); opacity: 0.5; }
+            100% { transform: scale(1.2) translate(10%, 10%); opacity: 0.8; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 35px 30px;
+            max-width: 650px;
+            width: 90%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #e0c3fc, #8ec5fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: #b3b3cc;
+            font-size: 1rem;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            text-align: center;
+        }
+
+        input[type="text"]:focus {
+            border-color: #e94057;
+            box-shadow: 0 0 10px rgba(233, 64, 87, 0.5);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary-glow), var(--accent-color));
+            border: none;
+            color: white;
+            padding: 16px 24px;
+            margin: 10px 0;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(233, 64, 87, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #8a2387, #f27121);
+            border-radius: 10px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border-radius: 15px;
+            font-size: 0.95rem;
+            text-align: left;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.4);
+            padding-left: 25px;
+        }
+
+        .aura-badge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 0 40px currentColor;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .tips-list {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .tips-list li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            color: #d1d1e0;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="ambient-orb" id="orb"></div>
+
+<div class="container">
+    <!-- HOME SCREEN -->
+    <div id="home-screen">
+        <h1>✨ AuraLab ✨</h1>
+        <p class="subtitle">Discover your energy archetype, psychological nature, and spiritual vibe.</p>
+        
+        <div class="input-group">
+            <input type="text" id="username-input" placeholder="Enter your name..." />
+        </div>
+
+        <button class="btn" onclick="startQuiz('aura')">🔮 Aura Energy Test</button>
+        <button class="btn" onclick="startQuiz('psychology')">🧠 Psychology & Mindset Test</button>
+        <button class="btn" onclick="startQuiz('behavior')">🌱 Human Nature & Behavior</button>
+        <button class="btn" onclick="startQuiz('mix')">🌟 Ultimate Master Analysis (All-in-One)</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="hidden">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <h2 id="question-title" style="font-size: 1.3rem; min-height: 60px;">Question text...</h2>
+        <div id="options-container"></div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="hidden">
+        <h3 id="user-greeting" style="color: #b3b3cc; margin: 0;"></h3>
+        <div class="aura-badge" id="aura-badge">✨</div>
+        <h1 id="result-aura-name" style="margin: 5px 0;">Aura Name</h1>
+        <p id="result-description" style="line-height: 1.6; color: #e6e6f2;"></p>
+
+        <div class="tips-list">
+            <h4 style="margin-top: 0; color: #fff;">💡 Personalized Guidance & Tips:</h4>
+            <ul id="tips-container" style="padding-left: 20px; margin: 0;"></ul>
+        </div>
+
+        <button class="btn" onclick="resetApp()">🔄 Take Another Quiz</button>
+    </div>
+</div>
+
+<script>
+    const questionBank = {
+        aura: [
+            {
+                q: "When entering a noisy, crowded room, what is your natural reaction?",
+                options: [
+                    { text: "I immediately absorb the room's energy and feel charged up.", score: "Electric Gold" },
+                    { text: "I quietly observe from the edges, sensing people's moods.", score: "Mystic Violet" },
+                    { text: "I seek out one or two calm people to talk to.", score: "Ocean Blue" },
+                    { text: "I feel overwhelmed and want to retreat into nature.", score: "Emerald Green" }
+                ]
+            },
+            {
+                q: "Which element or visual vibe do you align with most?",
+                options: [
+                    { text: "Crackling lightning and radiant sunlight.", score: "Electric Gold" },
+                    { text: "Deep ocean trenches and starry night skies.", score: "Mystic Violet" },
+                    { text: "Cool flowing rivers and clear morning skies.", score: "Ocean Blue" },
+                    { text: "Ancient dense forests and sunlit moss.", score: "Emerald Green" }
+                ]
+            },
+            {
+                q: "How do friends usually describe your presence?",
+                options: [
+                    { text: "Inspiring, bold, and energetic.", score: "Electric Gold" },
+                    { text: "Intuitive, deep, and mysterious.", score: "Mystic Violet" },
+                    { text: "Calming, trustworthy, and peaceful.", score: "Ocean Blue" },
+                    { text: "Grounding, practical, and nurturing.", score: "Emerald Green" }
+                ]
+            }
+        ],
+        psychology: [
+            {
+                q: "When making tough decisions, what guides you first?",
+                options: [
+                    { text: "Strict logic, facts, and systematic analysis.", score: "Electric Gold" },
+                    { text: "Gut feeling, instinct, and immediate intuition.", score: "Mystic Violet" },
+                    { text: "How the decision impacts other people's feelings.", score: "Ocean Blue" },
+                    { text: "Practical outcomes and immediate efficiency.", score: "Emerald Green" }
+                ]
+            },
+            {
+                q: "How do you process stress or unexpected setbacks?",
+                options: [
+                    { text: "Break it down into manageable steps and solve it.", score: "Electric Gold" },
+                    { text: "Take time alone to reflect and feel through it.", score: "Mystic Violet" },
+                    { text: "Talk it out with trusted friends or loved ones.", score: "Ocean Blue" },
+                    { text: "Pivot instantly and look for alternative paths forward.", score: "Emerald Green" }
+                ]
+            }
+        ],
+        behavior: [
+            {
+                q: "In social conversations, what role do you naturally play?",
+                options: [
+                    { text: "The storyteller who keeps everyone entertained.", score: "Electric Gold" },
+                    { text: "The listener who gives deep, thoughtful advice.", score: "Mystic Violet" },
+                    { text: "The peacekeeper who resolves conflicts smoothly.", score: "Ocean Blue" },
+                    { text: "The organizer who plans the next activity.", score: "Emerald Green" }
+                ]
+            },
+            {
+                q: "What gives you the highest sense of personal fulfillment?",
+                options: [
+                    { text: "Creating or sharing something unique with others.", score: "Electric Gold" },
+                    { text: "Understanding complex truths and self-growth.", score: "Mystic Violet" },
+                    { text: "Helping someone feel understood and supported.", score: "Ocean Blue" },
+                    { text: "Achieving ambitious goals and building success.", score: "Emerald Green" }
+                ]
+            }
+        ]
+    };
+
+    const auraResults = {
+        "Electric Gold": {
+            color: "#ffb703",
+            badge: "☀️",
+            title: "Radiant Gold Aura",
+            desc: "Your energy is vibrant, confident, and magnetic. You naturally command attention and inspire action wherever you go.",
+            tips: [
+                "Channel your high energy into creative leadership projects.",
+                "Remember to rest—your intense glow can sometimes burn you out.",
+                "Practice active listening to elevate those around you."
+            ]
+        },
+        "Mystic Violet": {
+            color: "#9d4edd",
+            badge: "🔮",
+            title: "Mystic Violet Aura",
+            desc: "You possess a deeply intuitive, spiritual, and imaginative aura. You perceive subtle energies and details that others miss.",
+            tips: [
+                "Trust your first instincts—your intuition is rarely wrong.",
+                "Keep a daily journal to process your vivid creative thoughts.",
+                "Set clear energetic boundaries to avoid absorbing emotional noise."
+            ]
+        },
+        "Ocean Blue": {
+            color: "#00b4d8",
+            badge: "🌊",
+            title: "Serene Ocean Blue Aura",
+            desc: "Your energy is tranquil, clear, and deeply empathetic. People naturally feel safe and understood when they are around you.",
+            tips: [
+                "Speak your truth clearly—your quiet voice holds high power.",
+                "Spend time near water or in quiet spaces to recharge your mind.",
+                "Avoid sacrificing your own peace just to keep harmony for others."
+            ]
+        },
+        "Emerald Green": {
+            color: "#2a9d8f",
+            badge: "🌿",
+            title: "Emerald Earth Aura",
+            desc: "You have a grounded, nurturing, and resilient aura. You are the pillar of strength and growth for the people in your life.",
+            tips: [
+                "Connect with nature regularly to clear mental clutter.",
+                "Embrace change—your stability allows you to adapt gracefully.",
+                "Praise your own achievements as generously as you nurture others."
+            ]
+        }
+    };
+
+    let currentQuestions = [];
+    let currentStep = 0;
+    let scoreTracker = {};
+    let userName = "";
+
+    function playBeep(freq = 440, duration = 0.08) {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    function startQuiz(type) {
+        playBeep(520);
+        userName = document.getElementById('username-input').value.trim() || "Seeker";
+        
+        if (type === 'mix') {
+            currentQuestions = [...questionBank.aura, ...questionBank.psychology, ...questionBank.behavior];
+        } else {
+            currentQuestions = questionBank[type] || questionBank.aura;
+        }
+
+        currentStep = 0;
+        scoreTracker = {};
+
+        document.getElementById('home-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const qData = currentQuestions[currentStep];
+        document.getElementById('question-title').innerText = `${currentStep + 1}. ${qData.q}`;
+        
+        const progress = ((currentStep) / currentQuestions.length) * 100;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+
+        qData.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.score);
+            container.appendChild(btn);
+        });
+    }
+
+    function selectOption(scoreKey) {
+        playBeep(640);
+        scoreTracker[scoreKey] = (scoreTracker[scoreKey] || 0) + 1;
+        currentStep++;
+
+        if (currentStep < currentQuestions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        let topResult = "Mystic Violet";
+        let maxCount = -1;
+
+        for (let key in scoreTracker) {
+            if (scoreTracker[key] > maxCount) {
+                maxCount = scoreTracker[key];
+                topResult = key;
+            }
+        }
+
+        const finalAura = auraResults[topResult] || auraResults["Mystic Violet"];
+
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        document.getElementById('user-greeting').innerText = `${userName}, your dominant energy is:`;
+        document.getElementById('result-aura-name').innerText = finalAura.title;
+        document.getElementById('result-aura-name').style.color = finalAura.color;
+        document.getElementById('result-description').innerText = finalAura.desc;
+        
+        const badge = document.getElementById('aura-badge');
+        badge.innerText = finalAura.badge;
+        badge.style.color = finalAura.color;
+        badge.style.boxShadow = `0 0 40px ${finalAura.color}`;
+
+        document.getElementById('orb').style.background = `radial-gradient(circle, ${finalAura.color} 0%, transparent 70%)`;
+
+        const tipsList = document.getElementById('tips-container');
+        tipsList.innerHTML = '';
+        finalAura.tips.forEach(tip => {
+            const li = document.createElement('li');
+            li.innerText = tip;
+            tipsList.appendChild(li);
+        });
+
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+    }
+
+    function resetApp() {
+        playBeep(400);
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('home-screen').classList.remove('hidden');
+        document.getElementById('progress-bar').style.width = '0%';
+        document.getElementById('orb').style.background = `radial-gradient(circle, var(--primary-glow) 0%, transparent 70%)`;
+    }
+</script>
+
+</body>
+</html>
